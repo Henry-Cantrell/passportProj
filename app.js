@@ -9,6 +9,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const dotenv = require('dotenv')
 
+//Initialize dotenv
+
+dotenv.config()
+
 const mongoDb = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/passportDb?retryWrites=true&w=majority`;
 mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
 const db = mongoose.connection;
