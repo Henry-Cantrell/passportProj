@@ -18,7 +18,7 @@ dotenv.config()
 // database initialization and connection start
 
 const { MongoClient } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/passportDb?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
   const collection = client.db("test").collection("devices");
@@ -32,10 +32,20 @@ client.connect(err => {
 
 //Set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB =`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+var mongoDB =`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/passportDb?retryWrites=true&w=majority`;
 mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+// User setup for login
+
+const User = mongoose.model(
+  "User",
+  new Schema({
+    username: { type: String, required: true },
+    password: { type: String, required: true }
+  })
+);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
