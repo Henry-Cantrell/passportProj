@@ -1,43 +1,18 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+/////// app.js
+
+const express = require("express");
+const path = require("path");
+const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const dotenv = require('dotenv')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var inventoryRouter = require('./routes/inventory')
-
-var app = express();
-
-//Initialize dotenv
-
-dotenv.config()
-
-// database initialization and connection start
-
-const { MongoClient } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/passportDb?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
-
-// database processes end
-
-// Mongoose connection 
-
-//Set up mongoose connection
-var mongoose = require('mongoose');
-var mongoDB =`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/passportDb?retryWrites=true&w=majority`;
-mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-// User setup for login
+const mongoDb = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.abwln.mongodb.net/passportDb?retryWrites=true&w=majority`;
+mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "mongo connection error"));
 
 const User = mongoose.model(
   "User",
@@ -47,28 +22,16 @@ const User = mongoose.model(
   })
 );
 
-// view engine setup
+const app = express();
 app.set("views", __dirname);
 app.set("view engine", "ejs");
 
-app.use(logger('dev'));
-app.use(express.json());
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/inventory', inventoryRouter);
+app.get("/", (req, res) => res.render("index"));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+app.listen(3000, () => console.log("app listening on port 3000!"));
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-});
